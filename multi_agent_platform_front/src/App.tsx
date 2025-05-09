@@ -25,6 +25,7 @@ function App() {
   const [ephemeralMessages, setEphemeralMessages] = useState<{ [agent: string]: string }>({})
   const [interruptPrompt, setInterruptPrompt] = useState<string | null>(null)
   const [interruptInput, setInterruptInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const serverEndpoint = import.meta.env.VITE_URL
 
   useEffect(() => {
@@ -60,6 +61,7 @@ function App() {
         alert('메시지를 입력해주세요.')
         return
       }
+      setIsLoading(true)
       try {
         const response = await fetch(`${serverEndpoint}/orchestration/chat/astream`, {
           method: 'POST',
@@ -111,7 +113,7 @@ function App() {
                       delete updated[agent]
                       return updated
                     })
-                  }, 1000)
+                  }, 2000)
                 }
               } catch (err) {
                 console.error('JSON parse error:', parts[i])
@@ -121,14 +123,18 @@ function App() {
         }
       } catch (err) {
         console.error('채팅 전송 실패:', err)
+      } finally {
+        setIsLoading(false)
+        setMessageInput('')
       }
-      setMessageInput('')
     }
   
   
     const handleInterruptSubmit = async () => {
       if (!interruptInput.trim()) return
       setInterruptPrompt(null)
+      setIsLoading(true)
+
   
       try {
         const response = await fetch(`${serverEndpoint}/orchestration/chat/astream_resume`, {
@@ -177,7 +183,7 @@ function App() {
                     delete updated[agent]
                     return updated
                   })
-                }, 1000)
+                }, 2000)
               } catch (err) {
                 console.error('JSON parse error:', parts[i])
               }
@@ -186,8 +192,11 @@ function App() {
         }
       } catch (err) {
         console.error('astream_resume 실패:', err)
-      }
+      }finally {
+        setIsLoading(false)
+
       setInterruptInput('')
+      }
     }
 
   return (
@@ -232,6 +241,7 @@ function App() {
               <ChatContent key={idx}>{msg.message}</ChatContent>
             ))}
             </ChatContentWrapper>
+            {isLoading && <Spinner>응답 생성 중...</Spinner>}
         </ChatWrapper>
 
         <ChatInputBoxWrapper>
@@ -241,7 +251,9 @@ function App() {
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
           />
-          <ChatInputBoxButton onClick={handleChatSend}>&#8679;</ChatInputBoxButton>
+          <ChatInputBoxButton onClick={handleChatSend} disabled={isLoading}>
+            {isLoading ? '...' : `전송`}
+          </ChatInputBoxButton>
         </ChatInputBoxWrapper>
       </MiddleWrapper>
 
@@ -352,15 +364,15 @@ const ChatInputBox = styled.input`
 const ChatInputBoxButton = styled.button`
   position: absolute;
   top: 10px;
-  right: 14px;
+  right: 10px;
   cursor: pointer;
-  width: 36px;
-  height: 35px;
+  width: 42px;
+  height: 40px;
   border-radius: 50%;
   border: none;
   background-color: #777;
   color: white;
-  font-size: 20px;
+  font-size: 14px;
   &:hover {
     background-color: #666;
   }
@@ -512,6 +524,15 @@ const InterruptButton = styled.button`
   &:hover {
     background-color: #666;
   }
+`
+
+const Spinner = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 20px;
 `
 
 export default App
