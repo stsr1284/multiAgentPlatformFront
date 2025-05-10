@@ -26,6 +26,7 @@ function App() {
   const [interruptPrompt, setInterruptPrompt] = useState<string | null>(null)
   const [interruptInput, setInterruptInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isChatError, setIsChatError] = useState(false)
   const serverEndpoint = import.meta.env.VITE_URL
 
   useEffect(() => {
@@ -59,6 +60,14 @@ function App() {
   const handleChatSend = async () => {
       if (messageInput.trim() === '') {
         alert('메시지를 입력해주세요.')
+        return
+      }
+      else if (selectedOrchestrator === null) {
+        alert('오케스트레이터를 선택해주세요.')
+        return
+      }
+      else if (selectedAgents.length === 0) {
+        alert('에이전트를 선택해주세요.')
         return
       }
       setIsLoading(true)
@@ -104,6 +113,11 @@ function App() {
                   setChatLog(prev => [...prev, { type, agent, message }])
                 } else if (type === 'interrupt') {
                   setInterruptPrompt(message)
+                } else if (type === 'error') {
+                  setIsChatError(true)
+                  setTimeout(() => {
+                    setIsChatError(false)
+                  }, 2000)
                 } else if (agent && message) {
                   setEphemeralMessages(prev => ({ ...prev, [agent]: message }))
         
@@ -242,6 +256,7 @@ function App() {
             ))}
             </ChatContentWrapper>
             {isLoading && <Spinner>응답 생성 중...</Spinner>}
+            {isChatError && <Spinner>재시도 해주세요!</Spinner>}
         </ChatWrapper>
 
         <ChatInputBoxWrapper>
