@@ -81,7 +81,7 @@ function App() {
             thread_id: threadId,
             query: messageInput,
             agent_list: selectedAgents,
-            orchestrator_type: selectedOrchestrator || 'testsupervisor3',
+            orchestrator_type: selectedOrchestrator,
           }),
         })
     
