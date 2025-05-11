@@ -450,7 +450,8 @@ const Item = styled.div`
   margin-top: 3px;
   flex-direction: row;
   justify-content: start;
-  overflow: auto;
+  flex-wrap: wrap;
+  align-items: center;
   padding: 4px 1px 4px 8px;
   border-radius: 5px;
   cursor: pointer;
@@ -465,7 +466,6 @@ const ItemDescription = styled.div`
   align-self: center;
   font-size: 14px;
   color: #666;
-  overflow: auto;
 `
 
 const SelectedOrchestratorWrapper = styled.div`
