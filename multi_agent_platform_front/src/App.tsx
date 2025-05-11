@@ -361,6 +361,7 @@ const ChatWrapper = styled.div`
 const ChatInputBoxWrapper = styled.div`
   position: relative;
   height: 140px;
+  max-width: 95%;
 `
 
 const ChatInputBox = styled.input`
